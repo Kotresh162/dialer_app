@@ -1,84 +1,64 @@
-import 'package:dailer/controller/DialerController.dart';
+import 'package:dailer/screens/dailpad.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart'; // For making phone calls
+import 'package:dailer/controller/DialerController.dart';
 
 class DialerScreen extends StatelessWidget {
   final DialerController controller = Get.put(DialerController());
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Dialer")),
-      body: Column(
-        children: [
-          // Display Phone Number
-          Expanded(
-            child: Center(
-              child: Obx(() => Text(
-                    controller.phoneNumber.value,
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  )),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // Dismiss keyboard when tapping outside
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: TextField(
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              border: InputBorder.none,
+              prefixIcon: Icon(Icons.search, color: Colors.grey), // Search icon inside TextField
             ),
           ),
-          
-          // Dial Pad
-          GridView.builder(
-            shrinkWrap: true,
-            itemCount: 12,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 1.5,
-            ),
-            itemBuilder: (context, index) {
-              List<String> buttons = [
-                "1", "2", "3",
-                "4", "5", "6",
-                "7", "8", "9",
-                "*", "0", "#"
-              ];
-              return ElevatedButton(
-                onPressed: () => controller.addDigit(buttons[index]),
-                child: Text(
-                  buttons[index],
-                  style: TextStyle(fontSize: 24),
-                ),
-              );
-            },
-          ),
+          actions: [
+            IconButton(icon: Icon(Icons.mic), onPressed: () {}),
+            IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+          ],
+        ),
 
-          // Call & Delete Buttons
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // Delete Button
-                IconButton(
-                  icon: Icon(Icons.backspace, size: 30),
-                  onPressed: controller.deleteDigit,
-                ),
-                
-                // Call Button
-                FloatingActionButton(
-                  onPressed: () async {
-                    final number = controller.phoneNumber.value;
-                    if (number.isNotEmpty) {
-                      final url = "tel:$number";
-                      if (await canLaunch(url)) {
-                        await launch(url);
-                      } else {
-                        print("Cannot launch dialer");
-                      }
-                    }
-                  },
-                  child: Icon(Icons.call),
-                  backgroundColor: Colors.green,
-                ),
-              ],
+        body: Column(
+          children: [
+            
+            Padding(
+              padding: const EdgeInsets.all(8.0),
             ),
-          ),
-        ],
+            Expanded(
+              child: ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) => ListTile(
+                  leading: Icon(Icons.phone),
+                  title: Text("Contact ${index + 1}"),
+                  subtitle: Text("+91 98765 4321${index}"),
+                  trailing: IconButton(
+                    icon: Icon(Icons.call),
+                    onPressed: () {
+                      launchUrl(Uri(scheme: 'tel', path: "+91 98765 4321${index}"));
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.dialpad),
+          onPressed: () {
+            Get.dialog(DialerPad());
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
