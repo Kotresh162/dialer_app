@@ -4,14 +4,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:dailer/controller/DialerController.dart';
 
 class DialerPad extends StatelessWidget {
-  final DialerController controller = Get.put(DialerController());
+  final DialerController controller = Get.find<DialerController>();
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.50, // Covers 60-70% of screen
+        height: MediaQuery.of(context).size.height * 0.50, // Covers 50% of the screen
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -26,6 +26,7 @@ class DialerPad extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            // Display entered number
             SizedBox(
               height: 60,
               child: Row(
@@ -51,6 +52,8 @@ class DialerPad extends StatelessWidget {
                 ],
               ),
             ),
+
+            // Dialpad
             Expanded(
               child: GridView.builder(
                 shrinkWrap: true,
@@ -74,13 +77,15 @@ class DialerPad extends StatelessWidget {
                 },
               ),
             ),
+
+            // Call button
             FloatingActionButton(
               onPressed: () async {
                 final number = controller.phoneNumber.value;
                 if (number.isNotEmpty) {
-                  final url = "tel:$number";
-                  if (await canLaunch(url)) {
-                    await launch(url);
+                  final Uri url = Uri(scheme: 'tel', path: number);
+                  if (await launchUrl(url)) {
+                    controller.makeCall(); // Save the call to history
                   } else {
                     print("Cannot launch dialer");
                   }
@@ -88,7 +93,6 @@ class DialerPad extends StatelessWidget {
               },
               child: const Icon(Icons.call, size: 40),
               backgroundColor: Colors.green,
-
             ),
           ],
         ),
