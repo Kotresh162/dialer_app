@@ -16,6 +16,6 @@ to run project
 flutter run
 
 
-This project is a starting point for a Flutter application.
+This project is a starting demo of caller app
 
 @copywrite 2025 kotreshhiremath
